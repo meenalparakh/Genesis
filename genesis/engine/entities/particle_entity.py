@@ -182,6 +182,8 @@ class ParticleEntity(Entity):
         self.sampler = self._material.sampler
 
         match self.sampler.split("-"):
+            case ['none']:
+                pass
             case ["regular"]:
                 pass
             case ["random"]:
@@ -262,7 +264,7 @@ class ParticleEntity(Entity):
             If no particles are sampled, or sampled particles lie outside the solver's domain.
         """
         self.init_sampler()
-
+        
         if isinstance(self._morph, gs.options.morphs.MeshSet):
             particles = []
             for i, file in enumerate(self._morph.files):
@@ -289,11 +291,15 @@ class ParticleEntity(Entity):
                         p_size=self._particle_size,
                         sampler=sampler,
                     )
-
+                    
                 particles_i += np.asarray(morph_i.pos, dtype=gs.np_float)
                 particles.append(particles_i)
         elif isinstance(self._morph, (gs.options.morphs.Primitive, gs.options.morphs.Mesh)):
-            particles = self._vmesh.particlize(self._particle_size, self.sampler)
+
+            if self.sampler == "none":
+                particles = np.asarray(self._vmesh.verts)
+            else:
+                particles = self._vmesh.particlize(self._particle_size, self.sampler)
             particles = particles.astype(gs.np_float, order="C", copy=False)
         elif isinstance(self._morph, gs.options.morphs.Nowhere):
             particles = pu.nowhere_particles(self._morph.n_particles)
