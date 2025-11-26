@@ -620,6 +620,13 @@ class RigidSolver(Solver):
     def _init_link_fields(self):
         self.links_info = self.data_manager.links_info
         self.links_state = self.data_manager.links_state
+        # replace all the None in link.inertial_quat with [1,0,0,0.]
+        inertial_quats = []
+        for link in self.links:
+            if link.inertial_quat is None:
+                inertial_quats.append(np.array([1.0, 0.0, 0.0, 0.0], dtype=gs.np_float))
+            else:
+                inertial_quats.append(link.inertial_quat)
 
         links = self.links
         kernel_init_link_fields(
@@ -636,7 +643,8 @@ class RigidSolver(Solver):
             links_pos=np.array([link.pos for link in links], dtype=gs.np_float),
             links_quat=np.array([link.quat for link in links], dtype=gs.np_float),
             links_inertial_pos=np.array([link.inertial_pos for link in links], dtype=gs.np_float),
-            links_inertial_quat=np.array([link.inertial_quat for link in links], dtype=gs.np_float),
+            # links_inertial_quat=np.array([link.inertial_quat for link in links], dtype=gs.np_float),
+            links_inertial_quat=np.array(inertial_quats, dtype=gs.np_float),
             links_inertial_i=np.array([link.inertial_i for link in links], dtype=gs.np_float),
             links_inertial_mass=np.array([link.inertial_mass for link in links], dtype=gs.np_float),
             links_entity_idx=np.array([link._entity_idx_in_solver for link in links], dtype=gs.np_int),
