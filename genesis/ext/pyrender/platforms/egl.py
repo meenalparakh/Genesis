@@ -155,7 +155,7 @@ class EGLPlatform(Platform):
             eglCreateContext,
             eglMakeCurrent,
             EGLConfig,
-            EGLError,
+            # EGLError,
         )
         from OpenGL import arrays
 
@@ -237,14 +237,16 @@ class EGLPlatform(Platform):
                 assert eglMakeCurrent(egl_display, EGL_NO_SURFACE, EGL_NO_SURFACE, egl_context)
 
                 break
-            except (AssertionError, EGLError) as e:
+            # except (AssertionError, EGLError) as e:
+            except Exception as e:
                 error = e
         else:
             if self._egl_device_id is None:
                 err_msg = "No EGL context could be initialized."
             else:
                 err_msg = f"No EGL context could not be initialized for EGL_DEVICE_ID='{self._egl_device_id or i}'."
-            raise EGLError(err_msg) from error
+            raise RuntimeError(err_msg) from error
+            # raise EGLError(err_msg) from error
 
         # Backup the device and display that will be used
         self._egl_device = device
